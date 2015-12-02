@@ -18,8 +18,12 @@ package org.springframework.data.couchbase.cache;
 
 import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.protocol.views.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.SimpleValueWrapper;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * The {@link CouchbaseCache} class implements the Spring Cache interface on top of Couchbase Server and the Couchbase
@@ -32,6 +36,7 @@ import org.springframework.cache.support.SimpleValueWrapper;
  */
 public class CouchbaseCache implements Cache {
 
+  private final Logger logger = LoggerFactory.getLogger(CouchbaseCache.class);
   /**
    * The actual CouchbaseClient instance.
    */
@@ -176,7 +181,11 @@ public class CouchbaseCache implements Cache {
    */
   public final void clear() {
     if(getAlwaysFlush() || name == null || name.trim().length() == 0)
-      client.flush();
+      try {
+        client.flush().get();
+      } catch (Exception e) {
+        logger.error("Couchbase flush error: ", e);
+      }
     else
       evictAllDocuments();
   }

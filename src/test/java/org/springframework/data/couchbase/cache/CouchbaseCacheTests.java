@@ -154,7 +154,7 @@ public class CouchbaseCacheTests {
   }
 
   /**
-   * Putting into cache on the same key not null value, and then null value,
+   * Putting into cache on the same key not null value and then clearing the cache,
    * results in null object
    */
   @Test
@@ -170,8 +170,26 @@ public class CouchbaseCacheTests {
     assertNull(cache.get(key));
   }
 
-  static class User implements Serializable {
-    public String firstname;
-  }
+    /**
+     * Putting into cache on the same key not null value and then clearing the cache,
+     * results in null object
+     */
+    @Test
+    public void testSettingFlushingAndGetting() {
+        CouchbaseCache cache = new CouchbaseCache(cacheName, client);
+        cache.setAlwaysFlush(true);
+
+        String key = "couchbase-cache-test";
+        String value = "Hello World!";
+
+        cache.put(key, value);
+        cache.clear();
+
+        assertNull(cache.get(key));
+    }
+
+    static class User implements Serializable {
+        public String firstname;
+    }
 
 }
