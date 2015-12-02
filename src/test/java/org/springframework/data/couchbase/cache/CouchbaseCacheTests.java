@@ -95,7 +95,7 @@ public class CouchbaseCacheTests {
     // wait for TTL to expire (double time of TTL)
     Thread.sleep(2000);
 
-    String stored = (String) client.get(key);
+    String stored = cache.get(key, String.class);
     assertNull(stored);
   }
 
@@ -126,11 +126,13 @@ public class CouchbaseCacheTests {
     String key = "couchbase-cache-test";
     String value = "Hello World!";
 
-    Boolean success = client.set(key, 0, value).get();
-    assertTrue(success);
+    cache.put(key, value);
+    Thread.sleep(10);
 
     cache.evict(key);
-    Object result = client.get(key);
+
+    Thread.sleep(10);
+    Object result = cache.get(key);
     assertNull(result);
   }
 
@@ -147,6 +149,23 @@ public class CouchbaseCacheTests {
 
     cache.put(key, value);
     cache.put(key, null);
+
+    assertNull(cache.get(key));
+  }
+
+  /**
+   * Putting into cache on the same key not null value, and then null value,
+   * results in null object
+   */
+  @Test
+  public void testSettingClearingAndGetting() {
+    CouchbaseCache cache = new CouchbaseCache(cacheName, client);
+
+    String key = "couchbase-cache-test";
+    String value = "Hello World!";
+
+    cache.put(key, value);
+    cache.clear();
 
     assertNull(cache.get(key));
   }
