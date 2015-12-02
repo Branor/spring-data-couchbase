@@ -73,7 +73,7 @@ public class CouchbaseCacheTests {
     String value = "Hello World!";
     cache.put(key, value);
 
-    String stored = (String) client.get(key);
+    String stored = cache.get(key, String.class);
     assertNotNull(stored);
     assertEquals(value, stored);
 
